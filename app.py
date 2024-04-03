@@ -9,6 +9,13 @@ debug = DebugToolbarExtension(app)
 
 responses = []
 
+@app.route('/start', methods=["POST"])
+def start_survey():
+    """Clear the session of responses and redirect to start of survey."""
+    session["responses"] = []
+    return redirect("/questions/0")
+
+
 # @app.route('/')
 # def show_start_page():
 #     """Show start page for survey."""
@@ -34,17 +41,19 @@ def show_question(qid):
     return render_template("question.html", question_num=qid, question=question)
 
 
-
 @app.route('/answer', methods=["POST"])
 def handle_answer():
-    responses = session["responses"]
+    responses = session.get("responses", [])
     choice = request.form['answer']
+
     responses.append(choice)
-    session["responses"] = responses
+    session["responses"] = responses  
+
     if len(responses) < len(satisfaction_survey.questions):
         return redirect(f"/questions/{len(responses)}")
     else:
         return redirect("/thankyou")
+
 
 
 @app.route('/thankyou')
